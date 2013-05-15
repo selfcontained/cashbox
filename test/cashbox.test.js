@@ -1,5 +1,6 @@
 var assert = require('chai').assert,
-	Cache = require('../index');
+	Cache = require('../index'),
+	Memory = require('../lib/stores/memory');
 
 describe('Cache', function() {
 
@@ -11,6 +12,26 @@ describe('Cache', function() {
 
 		assert.isNotNull(cache.store);
 		assert.equal(cache.store.type, 'memory');
+	});
+
+	it('should allow a store Constructor', function() {
+		var cache = new Cache({
+			store: Memory
+		});
+
+		assert.isNotNull(cache.store);
+		assert.equal(cache.store.type, 'memory');
+		assert.instanceOf(cache.store, Memory);
+	});
+
+	it('should allow a store Object', function() {
+		var cache = new Cache({
+			store: new Memory()
+		});
+
+		assert.isNotNull(cache.store);
+		assert.equal(cache.store.type, 'memory');
+		assert.instanceOf(cache.store, Memory);
 	});
 
 	describe('set() and get()', function() {
