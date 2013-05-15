@@ -1,0 +1,41 @@
+{
+  "name": "cashbox",
+  "version": "0.0.0",
+  "description": "javascript cache library with configurable storage",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/selfcontained/cashbox.git"
+  },
+  "keywords": [
+    "javascrpit",
+    "node",
+    "cache",
+    "memory"
+  ],
+  "author": "Brad Harris <bmharris@gmail.com> (http://selfcontained.us)",
+  "license": "BSD",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "deap": "~0.1.2"
+  },
+  "devDependencies": {
+    "mocha": "~1.9.0",
+    "chai": "~1.6.0"
+  },
+  "testling": {
+    "browsers": [
+      "ie/9..latest",
+      "firefox/19..latest",
+      "chrome/25..latest",
+      "safari/latest",
+      "iphone/6",
+      "ipad/6"
+    ],
+    "harness": "mocha-tdd",
+    "files": "test/*.test.js"
+  }
+}
