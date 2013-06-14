@@ -280,6 +280,26 @@ describe('Cache', function() {
 			});
 		});
 
+		it('should accept an object with a string ttl', function(done) {
+			var cache = new Cache();
+
+			cache.mget({
+				keys: [key1, key2],
+				ttl: '1 second',
+				load: function(keys, cb) {
+					cb(null, [value1, value2]);
+				},
+				done: function(err, results) {
+					assert.isNull(err);
+					assert.lengthOf(results, 2);
+					assert.equal(results[0], value1);
+					assert.equal(results[1], value2);
+
+					done();
+				}
+			});
+		});
+
 		it('should handle a load function for missing values', function(done) {
 			var called = false,
 				cache = new Cache();
@@ -322,6 +342,27 @@ describe('Cache', function() {
 
 		});
 
+		it('should handle a load function and a string ttl for missing values', function(done) {
+			var called = false,
+				cache = new Cache();
+
+			function loadIt(keys, cb) {
+				called = true;
+				cb(null, [value2, value1]);
+			}
+
+			cache.mget([key2, key1], loadIt, '1s', function(err, results) {
+				assert.isNull(err);
+				assert.lengthOf(results, 2);
+				assert.equal(results[0], value2);
+				assert.equal(results[1], value1);
+				assert.isTrue(called);
+
+				done();
+			});
+
+		});
+
 		it('should handle a load function and a ttl for missing values and not return them after expiration', function(done) {
 			var called = false,
 				cache = new Cache();
@@ -332,6 +373,37 @@ describe('Cache', function() {
 			}
 
 			cache.mget([key2, key1], loadIt, 1, function(err, results) {
+				assert.isNull(err);
+				assert.lengthOf(results, 2);
+				assert.equal(results[0], value2);
+				assert.equal(results[1], value1);
+				assert.isTrue(called);
+
+				setTimeout(function() {
+					cache.mget([key1, key2], function(err, results) {
+						assert.isNull(err);
+						assert.lengthOf(results, 2);
+						assert.isUndefined(results[0]);
+						assert.isUndefined(results[1]);
+
+						done();
+					});
+				}, 1025);
+
+			});
+
+		});
+
+		it('should handle a load function and a string ttl for missing values and not return them after expiration', function(done) {
+			var called = false,
+				cache = new Cache();
+
+			function loadIt(keys, cb) {
+				called = true;
+				cb(null, [value2, value1]);
+			}
+
+			cache.mget([key2, key1], loadIt, '1 sec', function(err, results) {
 				assert.isNull(err);
 				assert.lengthOf(results, 2);
 				assert.equal(results[0], value2);
