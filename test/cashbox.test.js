@@ -302,7 +302,7 @@ describe('Cache', function() {
 			});
 		});
 
-		it('should accept an object with tagging capabilities', function(done) {
+		it('should accept an object with tagging capabilities (as an object)', function(done) {
 			var cache = new Cache();
 
 			cache.mget({
@@ -322,6 +322,34 @@ describe('Cache', function() {
 					assert.equal(results[1], value2);
 
 					cache.getKeys({ test : 2 }, function(err, keys) {
+						assert.equal(keys[0], key2);
+						done();
+					});
+
+				}
+			});
+		});
+
+		it('should accept an object with tagging capabilities (as an array)', function(done) {
+			var cache = new Cache();
+
+			cache.mget({
+				keys: [key1, key2],
+				ttl: 1,
+				load: function(keys, cb) {
+					cb(
+						null,
+						[value1, value2],
+						['test_1', 'test_2']
+					);
+				},
+				done: function(err, results) {
+					assert.isNull(err);
+					assert.lengthOf(results, 2);
+					assert.equal(results[0], value1);
+					assert.equal(results[1], value2);
+
+					cache.getKeys('test_2', function(err, keys) {
 						assert.equal(keys[0], key2);
 						done();
 					});
