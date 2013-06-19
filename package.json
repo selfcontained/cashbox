@@ -20,7 +20,8 @@
   "license": "BSD",
   "readmeFilename": "README.md",
   "dependencies": {
-    "deap": "~0.1.2"
+    "deap": "~0.1.2",
+    "timestr": "~0.1.0"
   },
   "devDependencies": {
     "mocha": "~1.9.0",
