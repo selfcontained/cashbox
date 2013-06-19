@@ -126,11 +126,12 @@ describe('Cache', function() {
 					assert.isNull(err);
 					assert.equal(v, value);
 
-					cache.getKeys({ test : 1 }, function(err, keys) {
-						assert.equal(keys[0], key);
-						done();
-					});
-
+					setTimeout(function() {
+						cache.getKeys({ test : 1 }, function(err, keys) {
+							assert.equal(keys[0], key);
+							done();
+						});
+					}, 0);
 				}
 			});
 		});
@@ -321,11 +322,12 @@ describe('Cache', function() {
 					assert.equal(results[0], value1);
 					assert.equal(results[1], value2);
 
-					cache.getKeys({ test : 2 }, function(err, keys) {
-						assert.equal(keys[0], key2);
-						done();
-					});
-
+					setTimeout(function() {
+						cache.getKeys({ test : 2 }, function(err, keys) {
+							assert.equal(keys[0], key2);
+							done();
+						});
+					}, 0);
 				}
 			});
 		});
@@ -349,11 +351,12 @@ describe('Cache', function() {
 					assert.equal(results[0], value1);
 					assert.equal(results[1], value2);
 
-					cache.getKeys('test_2', function(err, keys) {
-						assert.equal(keys[0], key2);
-						done();
-					});
-
+					setTimeout(function() {
+						cache.getKeys('test_2', function(err, keys) {
+							assert.equal(keys[0], key2);
+							done();
+						});
+					}, 0);
 				}
 			});
 		});
