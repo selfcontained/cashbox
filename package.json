@@ -17,6 +17,17 @@
     "memory"
   ],
   "author": "Brad Harris <bmharris@gmail.com> (http://selfcontained.us)",
+  "contributors": [
+    {
+      "name": "Brad Harris",
+      "email": "bmharris@gmail.com",
+      "url": "http://selfcontained.us"
+    },
+    {
+      "name": "Nathan Broslawsky",
+      "url": "http://github.com/nbroslawsky"
+    }
+  ],
   "license": "BSD",
   "readmeFilename": "README.md",
   "dependencies": {
