@@ -50,7 +50,7 @@ describe('Cache', function() {
 		);
 	});
 
-	it.only('should tag 4 cache keys differently', function(done) {
+	it('should tag 4 cache keys differently', function(done) {
 		var cache = new Cache();
 
 		var tags = {
