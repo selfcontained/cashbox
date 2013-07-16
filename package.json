@@ -32,10 +32,10 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "deap": "~0.1.2",
-    "timestr": "~0.1.0",
-    "async": "~0.2.9"
+    "timestr": "~0.1.0"
   },
   "devDependencies": {
+    "async": "~0.2.9",
     "mocha": "~1.9.0",
     "chai": "~1.6.0"
   },
