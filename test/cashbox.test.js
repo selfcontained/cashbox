@@ -120,14 +120,14 @@ describe('Cache', function() {
 				key: key,
 				ttl: 1,
 				load: function(key, cb) {
-					cb(null, value, { test : 1 });
+					cb(null, value, 'test=1');
 				},
 				done: function(err, v) {
 					assert.isNull(err);
 					assert.equal(v, value);
 
 					setTimeout(function() {
-						cache.getKeys({ test : 1 }, function(err, keys) {
+						cache.getKeys('test=1', function(err, keys) {
 							assert.equal(keys[0], key);
 							done();
 						});
@@ -303,7 +303,7 @@ describe('Cache', function() {
 			});
 		});
 
-		it('should accept an object with tagging capabilities (as an object)', function(done) {
+		it('should accept an object with tagging capabilities (as an array)', function(done) {
 			var cache = new Cache();
 
 			cache.mget({
@@ -313,7 +313,7 @@ describe('Cache', function() {
 					cb(
 						null,
 						[value1, value2],
-						[{ test : 1 }, { test : 2 }]
+						['test=1', 'test=2']
 					);
 				},
 				done: function(err, results) {
@@ -323,7 +323,7 @@ describe('Cache', function() {
 					assert.equal(results[1], value2);
 
 					setTimeout(function() {
-						cache.getKeys({ test : 2 }, function(err, keys) {
+						cache.getKeys('test=2', function(err, keys) {
 							assert.equal(keys[0], key2);
 							done();
 						});
