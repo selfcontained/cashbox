@@ -28,7 +28,7 @@
       "url": "http://github.com/nbroslawsky"
     }
   ],
-  "license": "BSD",
+  "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
     "deap": "~0.2.0",
