@@ -184,3 +184,18 @@ cache.set('myKey', 'myValue', function(err, wasSet) {
   });
 });
 ```
+
+### getKeys(tags, callback)
+
++ **tags** array of string tags, or single tag string
++ **callback** function is called with an error first, and an array of keys that match the given tags.  This keys returned are *all* keys that have *any* of the given tags.
+
+```javascript
+cache.set('myKey', 'myValue', ['awesome'], function(err) {
+  
+  cache.getKeys('awesome', function(err, keys) {
+    console.log(keys); // ['myKey']
+  });
+
+});
+```
