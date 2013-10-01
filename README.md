@@ -51,6 +51,20 @@ cache.set('myKey', 'myValue', '1 hour', function(err, wasSet) {
 The `Cashbox` constructor accepts an optional config object
 
 + **type** can be set to specify cache store type. `memory` is the default, `redis` is also supported
++ **store** can be set to either an instance, or a constructor for a backend cache store.  The constructor will be passed the config object should it need any special configuration.
+
+```javascript
+// a custom store instance, should implement the same api as the memory/redis store
+var myCustomStore = new MyCustomStore();
+
+// you can pass in the instance
+var cache = new Cashbox({ store: myCustomStore });
+
+// or the constructor - it will receive this same config object when instantiated
+cache = new Cashbox({ store: MyCustomStore, foo: 'bar' });
+
+```
+
 + **host** can be set for `redis` store.  Defaults to `localhost`
 + **port** can be set for `redis` store.  Defaults to `6379`
 + **options** can be set for `redis` store.  These are connection options passed into the [`redis.createClient(host, port, options)`](https://github.com/mranney/node_redis#rediscreateclientport-host-options) call.
