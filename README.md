@@ -92,7 +92,7 @@ cache.get(key, load, function(err, v) {
 });
 ```
 
-+ **ttl** is also optional, and may be specified w/ or w/o a load function.  Supported formats for ttl are either a value in seconds, or a time string parseable by [timestr](https://github.com/nbroslawsky/timestr) (i.e. *"1 hour"*).  Omitting ttl will cause value to be cached indefinitely.
++ **ttl** is also optional, and may be specified w/ a load function.  Supported formats for ttl are either a value in seconds, or a time string parseable by [timestr](https://github.com/nbroslawsky/timestr) (i.e. *"1 hour"*).  Omitting ttl will cause value to be cached indefinitely.
 + **callback** is called upon completion of fetching the value from the cache store.  It is passed an error first, and the value.  `undefined` is returned on cache misses
 
 `.get()` can also be called by passing in an object with `key`, `load`, `ttl`, and `done` (callback) properties.
@@ -112,4 +112,31 @@ cache.set('myKey', 'myValue', ['awesome'], '1 hour', function(err, wasSet) {
    console.log('myKey was cached');
 });
 
+```
+
+### mget(keys, [load], [ttl], callback)
+
++ **keys** is an array of keys you want to fetch values for
++ **load** is an optional function called on cache misses that is passed an array of missing keys, and a callback function you should call after loading the keys.  The callback function should be called with an error (or null if no error) first, array of values (ordered the same as the keys array), and an optional array of tags, each entry corresponding to the entry of the same index in the values array.
+
+```javascript
+// in it's simplest form
+// assuming the following is cached { one: '1', two: '2' }
+cache.mget(['one', 'two'], function(err, values) {
+  console.log(values); // [1, 2]
+});
+
+// assuming the following is cached { one: '1' }
+cache.mget(['one, two'], loadEm, 60, function(err, values) {
+  console.log(values); // [1, 2]
+  
+  // 'one' and 'two' are cached for 60 seconds, and 'two' is tagged with 'awesome'
+});
+// loadEm is called once, with an array of all missing keys
+function loadEm(missingKeys, done) {
+  console.log(missingKeys); // ['two']
+  
+  // load missing keys and pass values along to callback
+  done(null, [2], ['awesome']);
+}
 ```
