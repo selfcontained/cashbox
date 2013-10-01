@@ -14,6 +14,24 @@ describe('Cache', function() {
 		'burp4' : 'adurp4'
 	};
 
+	it('should allow getKeys() wit a single tag', function(done) {
+		var cache = new Cache(),
+			tag = 'myTag';
+
+		cache.set(key, value, [tag], function(err, set) {
+			assert.isNull(err);
+			assert.isTrue(set);
+
+			cache.getKeys(tag, function(err, keys) {
+				assert.isNull(err);
+
+				assert.deepEqual(keys, [key]);
+
+				done();
+			});
+		});
+	});
+
 	it('should tag 4 cache keys the same way', function(done) {
 		var cache = new Cache();
 

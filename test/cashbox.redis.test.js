@@ -567,6 +567,91 @@ describe('Redis Cache', function() {
 			});
 		});
 
+		it('should set one tag for one key', function(done) {
+			var hash = {},
+				tags = {},
+				key1 = getKey(),
+				key2 = getKey(),
+				tag = getTag();
+
+			hash[key1] = value1;
+			hash[key2] = value2;
+
+			tags[key1] = [tag];
+
+			cache.mset(hash, tags, function(err, set) {
+				assert.isNull(err);
+				assert.isTrue(set);
+
+				cache.getKeys(tag, function(err, keys) {
+					assert.isNull(err);
+					assert.include(keys, key1);
+
+					done();
+				});
+			});
+		});
+
+		it('should set two tags for one key', function(done) {
+			var hash = {},
+				key1 = getKey(),
+				key2 = getKey(),
+				tags = {},
+				tag1 = getTag(),
+				tag2 = getTag();
+
+			hash[key1] = value1;
+			hash[key2] = value2;
+
+			tags[key1] = [tag1, tag2];
+
+			cache.mset(hash, tags, function(err, set) {
+				assert.isNull(err);
+				assert.isTrue(set);
+
+				cache.getKeys([tag1, tag2], function(err, keys) {
+					assert.isNull(err);
+					assert.include(keys, key1);
+
+					done();
+				});
+			});
+		});
+
+		it('should set two tags for one key and one tag for another', function(done) {
+			var hash = {},
+				key1 = getKey(),
+				key2 = getKey(),
+				tags = {},
+				tag1 = getTag(),
+				tag2 = getTag();
+
+			hash[key1] = value1;
+			hash[key2] = value2;
+
+			tags[key1] = [tag1, tag2];
+			tags[key2] = [tag1];
+
+			cache.mset(hash, tags, function(err, set) {
+				assert.isNull(err);
+				assert.isTrue(set);
+
+				cache.getKeys([tag1, tag2], function(err, keys) {
+					assert.isNull(err);
+					assert.include(keys, key1);
+					assert.include(keys, key2);
+
+					cache.getKeys([tag1], function(err, keys){
+						assert.isNull(err);
+						assert.include(keys, key1);
+						assert.include(keys, key2);
+
+						done();
+					});
+				});
+			});
+		});
+
 	});
 
 	describe('expire()', function() {

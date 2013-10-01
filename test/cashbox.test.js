@@ -548,6 +548,86 @@ describe('Cache', function() {
 			});
 		});
 
+		it('should set one tag for one key', function(done) {
+			var cache = new Cache(),
+				hash = {},
+				tags = {},
+				tag = 'awesome';
+
+			hash[key1] = value1;
+			hash[key2] = value2;
+
+			tags[key1] = [tag];
+
+			cache.mset(hash, tags, function(err, set) {
+				assert.isNull(err);
+				assert.isTrue(set);
+
+				cache.getKeys(tag, function(err, keys) {
+					assert.isNull(err);
+					assert.deepEqual(keys, [key1]);
+
+					done();
+				});
+			});
+		});
+
+		it('should set two tags for one key', function(done) {
+			var cache = new Cache(),
+				hash = {},
+				tags = {},
+				tag1 = 'awesome',
+				tag2 = 'rawesome';
+
+			hash[key1] = value1;
+			hash[key2] = value2;
+
+			tags[key1] = [tag1, tag2];
+
+			cache.mset(hash, tags, function(err, set) {
+				assert.isNull(err);
+				assert.isTrue(set);
+
+				cache.getKeys([tag1, tag2], function(err, keys) {
+					assert.isNull(err);
+					assert.deepEqual(keys, [key1]);
+
+					done();
+				});
+			});
+		});
+
+		it('should set two tags for one key and one tag for another', function(done) {
+			var cache = new Cache(),
+				hash = {},
+				tags = {},
+				tag1 = 'awesome',
+				tag2 = 'rawesome';
+
+			hash[key1] = value1;
+			hash[key2] = value2;
+
+			tags[key1] = [tag1, tag2];
+			tags[key2] = [tag1];
+
+			cache.mset(hash, tags, function(err, set) {
+				assert.isNull(err);
+				assert.isTrue(set);
+
+				cache.getKeys([tag1, tag2], function(err, keys) {
+					assert.isNull(err);
+					assert.deepEqual(keys, [key1, key2]);
+
+					cache.getKeys([tag1], function(err, keys){
+						assert.isNull(err);
+						assert.deepEqual(keys, [key1, key2]);
+
+						done();
+					});
+				});
+			});
+		});
+
 	});
 
 	describe('expire()', function() {
