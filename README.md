@@ -46,6 +46,14 @@ cache.set('myKey', 'myValue', '1 hour', function(err, wasSet) {
 
 ---
 
++ [constructor](https://github.com/selfcontained/cashbox#cashboxconfig-constructor)
++ [.get(key, [load], [ttl], callback)](https://github.com/selfcontained/cashbox#getkey-load-ttl-callback)
++ [.set(key, value, [tags], [ttl], callback)](https://github.com/selfcontained/cashbox#setkey-value-tags-ttl-callback)
++ [.mget(keys, [load], [ttl], callback)](https://github.com/selfcontained/cashbox#mgetkeys-load-ttl-callback)
++ [.mset(keysValuesMap, [tags], [ttl], callback)](https://github.com/selfcontained/cashbox#msetkeysvaluesmap-tags-ttl-callback)
++ [.expire(key, [ttl], callback)](https://github.com/selfcontained/cashbox#expirekey-ttl-callback)
++ [.getKeys(tags, callback)](https://github.com/selfcontained/cashbox#getkeystags-callback)
+
 ### Cashbox(config) constructor
 
 The `Cashbox` constructor accepts an optional config object
@@ -114,7 +122,7 @@ cache.set('myKey', 'myValue', ['awesome'], '1 hour', function(err, wasSet) {
 
 ```
 
-### mget(keys, [load], [ttl], callback)
+### .mget(keys, [load], [ttl], callback)
 
 + **keys** is an array of keys you want to fetch values for
 + **load** is an optional function called on cache misses that is passed an array of missing keys, and a callback function you should call after loading the keys.  The callback function should be called with an error (or null if no error) first, array of values (ordered the same as the keys array), and an optional array of tags, each entry corresponding to the entry of the same index in the values array.
@@ -141,7 +149,7 @@ function loadEm(missingKeys, done) {
 }
 ```
 
-### mset(keysValuesMap, [tags], [ttl], callback)
+### .mset(keysValuesMap, [tags], [ttl], callback)
 
 + **keysValuesMap** is an object of keys => values to cache
 + **tags** is an optional object map of keys => tags
@@ -160,7 +168,7 @@ cache.mset({ 'one':1, 'two':2 }, { one: ['awesome', 'pawesome'] }), 60, function
 });
 ```
 
-### expire(key, [ttl], callback)
+### .expire(key, [ttl], callback)
 
 Used to set ttl on a key, or expire it right away
 
@@ -185,7 +193,7 @@ cache.set('myKey', 'myValue', function(err, wasSet) {
 });
 ```
 
-### getKeys(tags, callback)
+### .getKeys(tags, callback)
 
 + **tags** array of string tags, or single tag string
 + **callback** function is called with an error first, and an array of keys that match the given tags.  This keys returned are *all* keys that have *any* of the given tags.
