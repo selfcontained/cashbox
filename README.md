@@ -69,7 +69,7 @@ cache = new Cashbox({ store: MyCustomStore, foo: 'bar' });
 + **port** can be set for `redis` store.  Defaults to `6379`
 + **options** can be set for `redis` store.  These are connection options passed into the [`redis.createClient(host, port, options)`](https://github.com/mranney/node_redis#rediscreateclientport-host-options) call.
 
-### .get(key, load, ttl, callback)
+### .get(key, [load], [ttl], callback)
 
 + **key** is a string value used as the cache key
 + **load** - Optionally pass a `load` function that will be called upon a cache miss.
@@ -92,6 +92,24 @@ cache.get(key, load, function(err, v) {
 });
 ```
 
-+ **ttl** is also optional, and may be specified w/ or w/o a load function.  Supported formats for ttl are either a value in seconds, or a time string parseable by [timestr](https://github.com/nbroslawsky/timestr) (i.e. *"1 hour"*)
++ **ttl** is also optional, and may be specified w/ or w/o a load function.  Supported formats for ttl are either a value in seconds, or a time string parseable by [timestr](https://github.com/nbroslawsky/timestr) (i.e. *"1 hour"*).  Omitting ttl will cause value to be cached indefinitely.
 + **callback** is called upon completion of fetching the value from the cache store.  It is passed an error first, and the value.  `undefined` is returned on cache misses
 
+`.get()` can also be called by passing in an object with `key`, `load`, `ttl`, and `done` (callback) properties.
+
+### .set(key, value, [tags], [ttl], callback)
+
++ **key** is a string value used as the cache key
++ **value** is what you want to store in the cache
++ **tags** is an optional array of string *tags* that can be used as a means of retreiving keys.
++ **ttl** is an optional time-to-live.  Supported formats for ttl are either a value in seconds, or a time string parseable by [timestr](https://github.com/nbroslawsky/timestr) (i.e. *"1 hour"*).  Omitting ttl will cause value to be cached indefinitely.
++ **callback** is a function called upon completion of `set()` method.  It's passed an error first, and a boolean value indicating if the value was set successfully.
+
+```javascript
+// set "myValue" in cache w/ the key of "myKey", tagged with "awesome", expires after 1 hour
+cache.set('myKey', 'myValue', ['awesome'], '1 hour', function(err, wasSet) {
+
+   console.log('myKey was cached');
+});
+
+```
