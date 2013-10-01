@@ -92,6 +92,6 @@ cache.get(key, load, function(err, v) {
 });
 ```
 
-+ **ttl** is also optional, and may be specified w/ or w/o a load function.  Supported formats for ttl are either a value in seconds, or a time string parseable by [timestr](https://github.com/nbroslawsky/timestr).
++ **ttl** is also optional, and may be specified w/ or w/o a load function.  Supported formats for ttl are either a value in seconds, or a time string parseable by [timestr](https://github.com/nbroslawsky/timestr) (i.e. *"1 hour"*)
 + **callback** is called upon completion of fetching the value from the cache store.  It is passed an error first, and the value.  `undefined` is returned on cache misses
 
