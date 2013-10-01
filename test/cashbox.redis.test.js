@@ -1,43 +1,43 @@
 var assert = require('chai').assert,
 	Cache = require('../index'),
-	Memory = require('../lib/stores/memory');
+	Redis = require('../lib/stores/redis');
 
-describe('Cache', function() {
+describe('Redis Cache', function() {
 
-	var key = 'burp',
+	var cache = new Cache({
+			store: 'redis'
+		}),
 		value = 'adurp';
 
-	it('should default to a memory store', function() {
-		var cache = new Cache();
-
+	it('should create a Redis store', function() {
 		assert.isNotNull(cache.store);
-		assert.equal(cache.store.type, 'memory');
+		assert.equal(cache.store.type, 'redis');
 	});
 
 	it('should allow a store Constructor', function() {
 		var cache = new Cache({
-			store: Memory
+			store: Redis
 		});
 
 		assert.isNotNull(cache.store);
-		assert.equal(cache.store.type, 'memory');
-		assert.instanceOf(cache.store, Memory);
+		assert.equal(cache.store.type, 'redis');
+		assert.instanceOf(cache.store, Redis);
 	});
 
 	it('should allow a store Object', function() {
 		var cache = new Cache({
-			store: new Memory()
+			store: new Redis()
 		});
 
 		assert.isNotNull(cache.store);
-		assert.equal(cache.store.type, 'memory');
-		assert.instanceOf(cache.store, Memory);
+		assert.equal(cache.store.type, 'redis');
+		assert.instanceOf(cache.store, Redis);
 	});
 
 	describe('set() and get()', function() {
 
 		it('should return undefined for misses', function(done) {
-			var cache = new Cache();
+			var key = getKey();
 
 			cache.get(key, function(err, v) {
 				assert.isNull(err);
@@ -48,7 +48,7 @@ describe('Cache', function() {
 		});
 
 		it('should set a null value', function(done) {
-			var cache = new Cache();
+			var key = getKey();
 
 			cache.set(key, null, function(err, set) {
 				assert.isNull(err);
@@ -64,7 +64,7 @@ describe('Cache', function() {
 		});
 
 		it('should set a 0 value', function(done) {
-			var cache = new Cache();
+			var key = getKey();
 
 			cache.set(key, 0, function(err, set) {
 				assert.isNull(err);
@@ -80,7 +80,7 @@ describe('Cache', function() {
 		});
 
 		it('should set a an empty string', function(done) {
-			var cache = new Cache();
+			var key = getKey();
 
 			cache.set(key, '', function(err, set) {
 				assert.isNull(err);
@@ -96,7 +96,7 @@ describe('Cache', function() {
 		});
 
 		it('should accept an object', function(done) {
-			var cache = new Cache();
+			var key = getKey();
 
 			cache.get({
 				key: key,
@@ -114,19 +114,20 @@ describe('Cache', function() {
 		});
 
 		it('should have tagging capabilities on the load object for get()', function(done) {
-			var cache = new Cache();
+			var tag = getTag(),
+				key = getKey();
 
 			cache.get({
 				key: key,
 				ttl: 1,
 				load: function(key, cb) {
-					cb(null, value, 'test=1');
+					cb(null, value, tag);
 				},
 				done: function(err, v) {
 					assert.isNull(err);
 					assert.equal(v, value);
 
-					cache.getKeys('test=1', function(err, keys) {
+					cache.getKeys(tag, function(err, keys) {
 						assert.equal(keys[0], key);
 						done();
 					});
@@ -137,7 +138,7 @@ describe('Cache', function() {
 		describe('without a ttl', function() {
 
 			it('should set a value and get that value', function(done) {
-				var cache = new Cache();
+				var key = getKey();
 
 				cache.set(key, value, function(err, set) {
 					assert.isNull(err);
@@ -156,7 +157,7 @@ describe('Cache', function() {
 		describe('with a ttl', function() {
 
 			it('should set a value and get that value before expiration', function(done) {
-				var cache = new Cache();
+				var key = getKey();
 
 				cache.set(key, value, 5, function(err, set) {
 					assert.isNull(err);
@@ -172,7 +173,7 @@ describe('Cache', function() {
 			});
 
 			it('should set a value and get a miss for that value after expiration', function(done) {
-				var cache = new Cache();
+				var key = getKey();
 
 				cache.set(key, value, 1, function(err, set) {
 					assert.isNull(err);
@@ -195,8 +196,8 @@ describe('Cache', function() {
 		describe('with a load function', function() {
 
 			it('should call the load function if there is a miss', function(done) {
-				var called = false,
-					cache = new Cache();
+				var key = getKey(),
+					called = false;
 
 				function load(key, cb) {
 					called = true;
@@ -208,19 +209,23 @@ describe('Cache', function() {
 					assert.equal(v, value);
 					assert.isTrue(called);
 
-					cache.get(key, function(err, v) {
-						assert.isNull(err);
-						assert.equal(v, value);
+					// check existence after event loop is done
+					setTimeout(function() {
+						cache.get(key, function(err, v) {
+							assert.isNull(err);
+							assert.equal(v, value);
 
-						done();
-					});
+							done();
+						});
+					}, 0);
+
 				});
 
 			});
 
 			it('should set the ttl with a load function', function(done) {
-				var called = false,
-					cache = new Cache();
+				var key = getKey(),
+					called = false;
 
 				function load(key, cb) {
 					called = true;
@@ -249,13 +254,12 @@ describe('Cache', function() {
 	});
 
 	describe('mget()', function() {
-		var key1 = 'beep',
-			key2 = 'boop',
-			value1 = 'bop',
+		var value1 = 'bop',
 			value2 = 'burp';
 
 		it('should set 2 values, and return both in the same order', function(done) {
-			var cache = new Cache();
+			var key1 = getKey(),
+				key2 = getKey();
 
 			cache.set(key1, value1, function(err, set) {
 				assert.isNull(err);
@@ -278,7 +282,8 @@ describe('Cache', function() {
 		});
 
 		it('should accept an object', function(done) {
-			var cache = new Cache();
+			var key1 = getKey(),
+				key2 = getKey();
 
 			cache.mget({
 				keys: [key1, key2],
@@ -298,16 +303,21 @@ describe('Cache', function() {
 		});
 
 		it('should accept an object with tagging capabilities (as an array)', function(done) {
-			var cache = new Cache();
+			var tag1 = getTag(),
+				tag2 = getTag(),
+				key1 = getKey(),
+				key2 = getKey();
 
 			cache.mget({
 				keys: [key1, key2],
 				ttl: 1,
 				load: function(keys, cb) {
+					assert.deepEqual(keys, [key1, key2]);
+
 					cb(
 						null,
 						[value1, value2],
-						['test=1', 'test=2']
+						[tag1, [tag1, tag2]]
 					);
 				},
 				done: function(err, results) {
@@ -316,8 +326,10 @@ describe('Cache', function() {
 					assert.equal(results[0], value1);
 					assert.equal(results[1], value2);
 
-					cache.getKeys('test=2', function(err, keys) {
+					cache.getKeys(tag2, function(err, keys) {
 						assert.equal(keys[0], key2);
+						assert.lengthOf(keys, 1);
+
 						done();
 					});
 				}
@@ -325,7 +337,8 @@ describe('Cache', function() {
 		});
 
 		it('should accept an object with a string ttl', function(done) {
-			var cache = new Cache();
+			var key1 = getKey(),
+				key2 = getKey();
 
 			cache.mget({
 				keys: [key1, key2],
@@ -345,8 +358,9 @@ describe('Cache', function() {
 		});
 
 		it('should handle a load function for missing values', function(done) {
-			var called = false,
-				cache = new Cache();
+			var key1 = getKey(),
+				key2 = getKey(),
+				called = false;
 
 			function loadIt(keys, cb) {
 				called = true;
@@ -366,8 +380,9 @@ describe('Cache', function() {
 		});
 
 		it('should handle a load function and a ttl for missing values', function(done) {
-			var called = false,
-				cache = new Cache();
+			var key1 = getKey(),
+				key2 = getKey(),
+				called = false;
 
 			function loadIt(keys, cb) {
 				called = true;
@@ -387,8 +402,9 @@ describe('Cache', function() {
 		});
 
 		it('should handle a load function and a string ttl for missing values', function(done) {
-			var called = false,
-				cache = new Cache();
+			var key1 = getKey(),
+				key2 = getKey(),
+				called = false;
 
 			function loadIt(keys, cb) {
 				called = true;
@@ -408,8 +424,9 @@ describe('Cache', function() {
 		});
 
 		it('should handle a load function and a ttl for missing values and not return them after expiration', function(done) {
-			var called = false,
-				cache = new Cache();
+			var key1 = getKey(),
+				key2 = getKey(),
+				called = false;
 
 			function loadIt(keys, cb) {
 				called = true;
@@ -439,8 +456,9 @@ describe('Cache', function() {
 		});
 
 		it('should handle a load function and a string ttl for missing values and not return them after expiration', function(done) {
-			var called = false,
-				cache = new Cache();
+			var key1 = getKey(),
+				key2 = getKey(),
+				called = false;
 
 			function loadIt(keys, cb) {
 				called = true;
@@ -472,13 +490,12 @@ describe('Cache', function() {
 	});
 
 	describe('mset()', function() {
-		var key1 = 'beep',
-			key2 = 'boop',
-			value1 = 'bop',
+		var value1 = 'bop',
 			value2 = 'burp';
 
 		it('should set multiple values, and then allow them to be retreived', function(done) {
-			var cache = new Cache(),
+			var key1 = getKey(),
+				key2 = getKey(),
 				hash = {};
 
 			hash[key1] = value1;
@@ -501,7 +518,8 @@ describe('Cache', function() {
 		});
 
 		it('should set multiple values with a ttl, and then allow them to be retreived', function(done) {
-			var cache = new Cache(),
+			var key1 = getKey(),
+				key2 = getKey(),
 				hash = {};
 
 			hash[key1] = value1;
@@ -524,7 +542,8 @@ describe('Cache', function() {
 		});
 
 		it('should set multiple values with a ttl, and then not allow them to be retreived after expiration', function(done) {
-			var cache = new Cache(),
+			var key1 = getKey(),
+				key2 = getKey(),
 				hash = {};
 
 			hash[key1] = value1;
@@ -553,8 +572,6 @@ describe('Cache', function() {
 	describe('expire()', function() {
 
 		it('should return false when trying to expire non-existent keys', function(done) {
-			var cache = new Cache();
-
 			cache.expire('non-existent-key', function(err, expired) {
 				assert.isNull(err);
 				assert.isFalse(expired);
@@ -565,8 +582,7 @@ describe('Cache', function() {
 		});
 
 		it('should remove an existing key when no ttl is passed', function(done) {
-			var cache = new Cache(),
-				key = 'someKey',
+			var key = getKey(),
 				value = 'foobar';
 
 			cache.set(key, value, 10, function(err, set) {
@@ -588,8 +604,7 @@ describe('Cache', function() {
 		});
 
 		it('should change an existing keys expiration', function(done) {
-			var cache = new Cache(),
-				key = 'someKey',
+			var key = getKey(),
 				value = 'foobar';
 
 			cache.set(key, value, 10, function(err, set) {
@@ -615,3 +630,13 @@ describe('Cache', function() {
 	});
 
 });
+
+var idx = 0;
+function getKey() {
+	return ['testkey',++idx,Date.now()].join(':');
+}
+
+var tagIdx = 0;
+function getTag() {
+	return ['tagtag',++tagIdx,Date.now()].join(':');
+}

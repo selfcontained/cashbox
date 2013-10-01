@@ -1,7 +1,6 @@
 var assert = require('chai').assert,
 	Cache = require('../index'),
-	async = require('async'),
-	Memory = require('../lib/stores/memory');
+	async = require('async');
 
 describe('Cache', function() {
 
