@@ -15,7 +15,8 @@
     "javascrpit",
     "node",
     "cache",
-    "memory"
+    "memory",
+    "redis"
   ],
   "author": "Brad Harris <bmharris@gmail.com> (http://selfcontained.us)",
   "contributors": [
