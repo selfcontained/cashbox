@@ -46,6 +46,15 @@ cache.set('myKey', 'myValue', '1 hour', function(err, wasSet) {
 
 ---
 
+### Cashbox(config) constructor
+
+The `Cashbox` constructor accepts an optional config object
+
++ **type** can be set to specify cache store type. `memory` is the default, `redis` is also supported
++ **host** can be set for `redis` store.  Defaults to `localhost`
++ **port** can be set for `redis` store.  Defaults to `6379`
++ **options** can be set for `redis` store.  These are connection options passed into the [`redis.createClient(host, port, options)`](https://github.com/mranney/node_redis#rediscreateclientport-host-options) call.
+
 ### .get(key, load, ttl, callback)
 
 + **key** is a string value used as the cache key
