@@ -149,7 +149,38 @@ function loadEm(missingKeys, done) {
 + **callback** is a function called once the values have been set.  It's passed an error first, and a boolean indicating if the set operation was successful.
 
 ```javascript
+// simple mset with a 60 second ttl
 cache.mset({ 'one':1, 'two':2 }, 60, function(err, wasSet) {
   console.log('my values are cached for 60 seconds');
+});
+
+// set tags for one key and a ttl for both
+cache.mset({ 'one':1, 'two':2 }, { one: ['awesome', 'pawesome'] }), 60, function(err, wasSet) {
+  console.log('values set, "one" tagged with awesome and pawesome');
+});
+```
+
+### expire(key, [ttl], callback)
+
+Used to set ttl on a key, or expire it right away
+
++ **key** to expire / set ttl on
++ **ttl** optional ttl value to set for key.  If omitted then key will be expired right away
++ **callback** function is called after expiration with an error first, then a boolean indicating if key was expired
+
+```javascript
+cache.set('myKey', 'myValue', function(err, wasSet) {
+
+  // myKey was set w/o a ttl, let's add one
+  cache.expire('myKey', 60, function(err, expired) {
+    console.log(expired); //true
+    console.log('myKey now has a 60second ttl set');
+  });
+  
+  // we could also just expire it right away
+  cache.expire('myKey', function(err, expired) {
+    console.log(expired); //true
+    console.log('myKey is no longer cached');
+  });
 });
 ```
