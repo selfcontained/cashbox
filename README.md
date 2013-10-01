@@ -140,3 +140,16 @@ function loadEm(missingKeys, done) {
   done(null, [2], ['awesome']);
 }
 ```
+
+### mset(keysValuesMap, [tags], [ttl], callback)
+
++ **keysValuesMap** is an object of keys => values to cache
++ **tags** is an optional object map of keys => tags
++ **ttl** is an optional time-to-live.  Supported formats for ttl are either a value in seconds, or a time string parseable by [timestr](https://github.com/nbroslawsky/timestr) (i.e. *"1 hour"*).  Omitting ttl will cause value to be cached indefinitely.
++ **callback** is a function called once the values have been set.  It's passed an error first, and a boolean indicating if the set operation was successful.
+
+```javascript
+cache.mset({ 'one':1, 'two':2 }, 60, function(err, wasSet) {
+  console.log('my values are cached for 60 seconds');
+});
+```
