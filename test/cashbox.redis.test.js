@@ -1,4 +1,5 @@
 var assert = require('chai').assert,
+	async = require('async'),
 	Cache = require('../index'),
 	Redis = require('../lib/stores/redis');
 
@@ -710,6 +711,73 @@ describe('Redis Cache', function() {
 					}, 1025);
 				});
 			});
+		});
+
+	});
+
+	describe('selecting a db', function() {
+
+		it('should select the specified database', function(done) {
+			var key = getKey(),
+				cache = new Cache({
+					store: 'redis',
+					database: 1
+				});
+
+			async.waterfall(
+				[
+					// issuing a set immediately doesn't ensure database is set
+					// this feels like a bug, but not sure how to deal with it atm
+					// especially with less support for multi-db redis on the roadmap
+					function(cb) {
+						setTimeout(cb, 500);
+					},
+					// set a value in the connected database
+					function(cb) {
+						cache.set(key, value, function(err, set) {
+							assert.isNull(err);
+							assert.isTrue(set);
+
+							cb();
+						});
+					},
+					// go back to default
+					function(cb) {
+						cache.store.client.select(0, function(err) {
+							assert.isNull(err);
+
+							cb();
+						});
+					},
+					// ensure key isn't present
+					function(cb) {
+						cache.get(key, function(err, v) {
+							assert.isNull(err);
+							assert.isUndefined(v);
+
+							cb();
+						});
+					},
+					// now back to 1, look at me, I'm on a horse
+					function(cb) {
+						cache.store.client.select(1, function(err) {
+							assert.isNull(err);
+
+							cb();
+						});
+					},
+					function(cb) {
+						cache.get(key, function(err, v) {
+							assert.isNull(err);
+							assert.equal(v, value);
+
+							cb();
+						});
+					}
+
+				],
+				done
+			);
 		});
 
 	});

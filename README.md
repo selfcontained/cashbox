@@ -29,7 +29,7 @@ cache.set('myKey', 'myValue', function(err, wasSet) {
   cache.get('myKey', function(err, value) {
     console.log(value); //myValue
   });
-  
+
 });
 
 // you can also set a ttl in seconds or a time string
@@ -75,6 +75,7 @@ cache = new Cashbox({ store: MyCustomStore, foo: 'bar' });
 
 + **host** can be set for `redis` store.  Defaults to `localhost`
 + **port** can be set for `redis` store.  Defaults to `6379`
++ **database** can be set for `redis` store.  Defaults is not set, which uses 0.
 + **options** can be set for `redis` store.  These are connection options passed into the [`redis.createClient(host, port, options)`](https://github.com/mranney/node_redis#rediscreateclientport-host-options) call.
 
 ### .get(key, [load], [ttl], callback)
@@ -88,8 +89,8 @@ function load(key, cb) {
   //load value from db or w/e
   doSomethingAsync(key, function(err, value) {
     if(err) return cb(err);
-    
-    // cb() expects error first, then value.  Optionally an array of tags can be passed in third 
+
+    // cb() expects error first, then value.  Optionally an array of tags can be passed in third
     cb(null, value);
   });
 }
@@ -137,13 +138,13 @@ cache.mget(['one', 'two'], function(err, values) {
 // assuming the following is cached { one: '1' }
 cache.mget(['one, two'], loadEm, 60, function(err, values) {
   console.log(values); // [1, 2]
-  
+
   // 'one' and 'two' are cached for 60 seconds, and 'two' is tagged with 'awesome'
 });
 // loadEm is called once, with an array of all missing keys
 function loadEm(missingKeys, done) {
   console.log(missingKeys); // ['two']
-  
+
   // load missing keys and pass values along to callback
   done(null, [2], ['awesome']);
 }
