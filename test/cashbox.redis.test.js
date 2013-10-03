@@ -730,7 +730,7 @@ describe('Redis Cache', function() {
 					// this feels like a bug, but not sure how to deal with it atm
 					// especially with less support for multi-db redis on the roadmap
 					function(cb) {
-						setTimeout(cb, 500);
+						cache.store.client.on('ready', cb);
 					},
 					// set a value in the connected database
 					function(cb) {
