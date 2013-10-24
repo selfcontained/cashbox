@@ -47,6 +47,28 @@ describe('Cache', function() {
 			});
 		});
 
+		it('should set without a callback', function(done) {
+			var cache = new Cache();
+
+			assert.doesNotThrow(function() {
+				cache.set(key, value);
+
+				done();
+			});
+		});
+
+		it('should set syncronously when using Memory store', function(done) {
+			var cache = new Cache();
+
+			cache.set(key, value);
+			cache.get(key, function(err, v) {
+				assert.isNull(err);
+				assert.equal(v, value);
+
+				done();
+			});
+		});
+
 		it('should set a null value', function(done) {
 			var cache = new Cache();
 
@@ -631,6 +653,38 @@ describe('Cache', function() {
 							done();
 						});
 					});
+				});
+			});
+
+			it('should function without a callback', function(done) {
+				var cache = new Cache(),
+					hash = {};
+
+				hash[key1] = value1;
+				hash[key2] = value2;
+
+				assert.doesNotThrow(function() {
+					cache[method](hash);
+
+					done();
+				});
+			});
+
+			it('should function syncronously when using Memory store', function(done) {
+				var cache = new Cache(),
+					hash = {};
+
+				hash[key1] = value1;
+				hash[key2] = value2;
+
+				cache[method](hash);
+				cache.mget([key1, key2], function(err, results) {
+					assert.isNull(err);
+					assert.lengthOf(results, 2);
+					assert.equal(results[0], value1);
+					assert.equal(results[1], value2);
+
+					done();
 				});
 			});
 
