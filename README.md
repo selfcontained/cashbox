@@ -48,10 +48,10 @@ cache.set('myKey', 'myValue', '1 hour', function(err, wasSet) {
 
 + [constructor](https://github.com/selfcontained/cashbox#cashboxconfig-constructor)
 + [.get(key, [load], [ttl], callback)](https://github.com/selfcontained/cashbox#getkey-load-ttl-callback)
-+ [.set(key, value, [tags], [ttl], callback)](https://github.com/selfcontained/cashbox#setkey-value-tags-ttl-callback)
++ [.set(key, value, [tags], [ttl], [callback])](https://github.com/selfcontained/cashbox#setkey-value-tags-ttl-callback)
 + [.mget(keys, [load], [ttl], callback)](https://github.com/selfcontained/cashbox#mgetkeys-load-ttl-callback)
-+ [.mset(keysValuesMap, [tags], [ttl], callback)](https://github.com/selfcontained/cashbox#msetkeysvaluesmap-tags-ttl-callback)
-+ [.expire(key, [ttl], callback)](https://github.com/selfcontained/cashbox#expirekey-ttl-callback)
++ [.mset(keysValuesMap, [tags], [ttl], [callback])](https://github.com/selfcontained/cashbox#msetkeysvaluesmap-tags-ttl-callback)
++ [.expire(key, [ttl], [callback])](https://github.com/selfcontained/cashbox#expirekey-ttl-callback)
 + [.getKeys(tags, callback)](https://github.com/selfcontained/cashbox#getkeystags-callback)
 
 ### Cashbox(config) constructor
@@ -106,7 +106,7 @@ cache.get(key, load, function(err, v) {
 
 `.get()` can also be called by passing in an object with `key`, `load`, `ttl`, and `done` (callback) properties.
 
-### .set(key, value, [tags], [ttl], callback)
+### .set(key, value, [tags], [ttl], [callback])
 
 + **key** is a string value used as the cache key
 + **value** is what you want to store in the cache
@@ -150,7 +150,7 @@ function loadEm(missingKeys, done) {
 }
 ```
 
-### .mset(keysValuesMap, [tags], [ttl], callback)
+### .mset(keysValuesMap, [tags], [ttl], [callback])
 
 + **keysValuesMap** is an object of keys => values to cache
 + **tags** is an optional object map of keys => tags
@@ -169,7 +169,7 @@ cache.mset({ 'one':1, 'two':2 }, { one: ['awesome', 'pawesome'] }), 60, function
 });
 ```
 
-### .expire(key, [ttl], callback)
+### .expire(key, [ttl], [callback])
 
 Used to set ttl on a key, or expire it right away
 
@@ -185,7 +185,7 @@ cache.set('myKey', 'myValue', function(err, wasSet) {
     console.log(expired); //true
     console.log('myKey now has a 60second ttl set');
   });
-  
+
   // we could also just expire it right away
   cache.expire('myKey', function(err, expired) {
     console.log(expired); //true
@@ -201,7 +201,7 @@ cache.set('myKey', 'myValue', function(err, wasSet) {
 
 ```javascript
 cache.set('myKey', 'myValue', ['awesome'], function(err) {
-  
+
   cache.getKeys('awesome', function(err, keys) {
     console.log(keys); // ['myKey']
   });
