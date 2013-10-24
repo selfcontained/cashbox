@@ -3,7 +3,12 @@ var assert = require('chai').assert,
 	Cache = require('../index'),
 	Redis = require('../lib/stores/redis');
 
+var DEFAULT_TTL = 1,
+	DEFAULT_TTL_STRING = '1 sec',
+	DETAULT_TIMEOUT = 2000;
+
 describe('Redis Cache', function() {
+	this.timeout(2250);
 
 	var cache = new Cache({
 			store: 'redis'
@@ -176,7 +181,7 @@ describe('Redis Cache', function() {
 			it('should set a value and get a miss for that value after expiration', function(done) {
 				var key = getKey();
 
-				cache.set(key, value, 1, function(err, set) {
+				cache.set(key, value, DEFAULT_TTL, function(err, set) {
 					assert.isNull(err);
 					assert.isTrue(set);
 
@@ -188,7 +193,7 @@ describe('Redis Cache', function() {
 
 							done();
 						});
-					}, 1025);
+					}, DETAULT_TIMEOUT);
 				});
 			});
 
@@ -233,7 +238,7 @@ describe('Redis Cache', function() {
 					cb(null, value);
 				}
 
-				cache.get(key, load, 1, function(err, v) {
+				cache.get(key, load, DEFAULT_TTL, function(err, v) {
 					assert.isNull(err);
 					assert.equal(v, value);
 					assert.isTrue(called);
@@ -246,7 +251,7 @@ describe('Redis Cache', function() {
 
 							done();
 						});
-					}, 1025);
+					}, DETAULT_TIMEOUT);
 
 				});
 			});
@@ -434,7 +439,7 @@ describe('Redis Cache', function() {
 				cb(null, [value2, value1]);
 			}
 
-			cache.mget([key2, key1], loadIt, 1, function(err, results) {
+			cache.mget([key2, key1], loadIt, DEFAULT_TTL, function(err, results) {
 				assert.isNull(err);
 				assert.lengthOf(results, 2);
 				assert.equal(results[0], value2);
@@ -450,7 +455,7 @@ describe('Redis Cache', function() {
 
 						done();
 					});
-				}, 1025);
+				}, DETAULT_TIMEOUT);
 
 			});
 
@@ -466,7 +471,7 @@ describe('Redis Cache', function() {
 				cb(null, [value2, value1]);
 			}
 
-			cache.mget([key2, key1], loadIt, '1 sec', function(err, results) {
+			cache.mget([key2, key1], loadIt, DEFAULT_TTL_STRING, function(err, results) {
 				assert.isNull(err);
 				assert.lengthOf(results, 2);
 				assert.equal(results[0], value2);
@@ -482,7 +487,7 @@ describe('Redis Cache', function() {
 
 						done();
 					});
-				}, 1025);
+				}, DETAULT_TIMEOUT);
 
 			});
 
@@ -550,7 +555,7 @@ describe('Redis Cache', function() {
 			hash[key1] = value1;
 			hash[key2] = value2;
 
-			cache.mset(hash, 1, function(err, set) {
+			cache.mset(hash, DEFAULT_TTL, function(err, set) {
 				assert.isNull(err);
 				assert.isTrue(set);
 
@@ -563,7 +568,7 @@ describe('Redis Cache', function() {
 
 						done();
 					});
-				}, 1025);
+				}, DETAULT_TIMEOUT);
 
 			});
 		});
@@ -697,7 +702,7 @@ describe('Redis Cache', function() {
 				assert.isNull(err);
 				assert.isTrue(set);
 
-				cache.expire(key, 1, function(err, expired) {
+				cache.expire(key, DEFAULT_TTL, function(err, expired) {
 					assert.isNull(err);
 					assert.isTrue(expired);
 
@@ -708,7 +713,7 @@ describe('Redis Cache', function() {
 
 							done();
 						});
-					}, 1025);
+					}, DETAULT_TIMEOUT);
 				});
 			});
 		});
