@@ -756,6 +756,35 @@ describe('Cache', function() {
 			});
 		});
 
+		it('should function without a callback', function(done) {
+			var cache = new Cache();
+
+			assert.doesNotThrow(function() {
+				cache.expire('non-existent-key');
+
+				done();
+			})
+		});
+
+		it('should function syncronously when using the Memory store', function(done) {
+			var cache = new Cache(),
+				key = 'someKey',
+				value = 'foobar';
+
+			cache.set(key, value, 10, function(err, set) {
+				assert.isNull(err);
+				assert.isTrue(set);
+
+				cache.expire(key);
+				cache.get(key, function(err, v) {
+					assert.isNull(err);
+					assert.isUndefined(v);
+
+					done();
+				});
+			});
+		});
+
 	});
 
 });
