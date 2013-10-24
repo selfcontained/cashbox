@@ -248,387 +248,397 @@ describe('Cache', function() {
 
 	});
 
-	describe('mget()', function() {
-		var key1 = 'beep',
-			key2 = 'boop',
-			value1 = 'bop',
-			value2 = 'burp';
+	function describeMultiGetTests(description, method) {
+		describe(description, function() {
+			var key1 = 'beep',
+				key2 = 'boop',
+				value1 = 'bop',
+				value2 = 'burp';
 
-		it('should set 2 values, and return both in the same order', function(done) {
-			var cache = new Cache();
+			it('should set 2 values, and return both in the same order', function(done) {
+				var cache = new Cache();
 
-			cache.set(key1, value1, function(err, set) {
-				assert.isNull(err);
-				assert.isTrue(set);
-
-				cache.set(key2, value2, function(err, set) {
+				cache.set(key1, value1, function(err, set) {
 					assert.isNull(err);
 					assert.isTrue(set);
 
-					cache.mget([key2, key1], function(err, results) {
+					cache.set(key2, value2, function(err, set) {
 						assert.isNull(err);
-						assert.lengthOf(results, 2);
-						assert.equal(results[0], value2);
-						assert.equal(results[1], value1);
+						assert.isTrue(set);
 
-						done();
+						cache[method]([key2, key1], function(err, results) {
+							assert.isNull(err);
+							assert.lengthOf(results, 2);
+							assert.equal(results[0], value2);
+							assert.equal(results[1], value1);
+
+							done();
+						});
 					});
 				});
 			});
-		});
 
-		it('should accept an object', function(done) {
-			var cache = new Cache();
+			it('should accept an object', function(done) {
+				var cache = new Cache();
 
-			cache.mget({
-				keys: [key1, key2],
-				ttl: 1,
-				load: function(keys, cb) {
-					cb(null, [value1, value2]);
-				},
-				done: function(err, results) {
-					assert.isNull(err);
-					assert.lengthOf(results, 2);
-					assert.equal(results[0], value1);
-					assert.equal(results[1], value2);
+				cache[method]({
+					keys: [key1, key2],
+					ttl: 1,
+					load: function(keys, cb) {
+						cb(null, [value1, value2]);
+					},
+					done: function(err, results) {
+						assert.isNull(err);
+						assert.lengthOf(results, 2);
+						assert.equal(results[0], value1);
+						assert.equal(results[1], value2);
 
-					done();
-				}
-			});
-		});
-
-		it('should accept an object with tagging capabilities (as an array)', function(done) {
-			var cache = new Cache();
-
-			cache.mget({
-				keys: [key1, key2],
-				ttl: 1,
-				load: function(keys, cb) {
-					cb(
-						null,
-						[value1, value2],
-						['test=1', 'test=2']
-					);
-				},
-				done: function(err, results) {
-					assert.isNull(err);
-					assert.lengthOf(results, 2);
-					assert.equal(results[0], value1);
-					assert.equal(results[1], value2);
-
-					cache.getKeys('test=2', function(err, keys) {
-						assert.equal(keys[0], key2);
 						done();
-					});
-				}
+					}
+				});
 			});
-		});
 
-		it('should accept an object with a string ttl', function(done) {
-			var cache = new Cache();
+			it('should accept an object with tagging capabilities (as an array)', function(done) {
+				var cache = new Cache();
 
-			cache.mget({
-				keys: [key1, key2],
-				ttl: '1 second',
-				load: function(keys, cb) {
-					cb(null, [value1, value2]);
-				},
-				done: function(err, results) {
+				cache[method]({
+					keys: [key1, key2],
+					ttl: 1,
+					load: function(keys, cb) {
+						cb(
+							null,
+							[value1, value2],
+							['test=1', 'test=2']
+						);
+					},
+					done: function(err, results) {
+						assert.isNull(err);
+						assert.lengthOf(results, 2);
+						assert.equal(results[0], value1);
+						assert.equal(results[1], value2);
+
+						cache.getKeys('test=2', function(err, keys) {
+							assert.equal(keys[0], key2);
+							done();
+						});
+					}
+				});
+			});
+
+			it('should accept an object with a string ttl', function(done) {
+				var cache = new Cache();
+
+				cache[method]({
+					keys: [key1, key2],
+					ttl: '1 second',
+					load: function(keys, cb) {
+						cb(null, [value1, value2]);
+					},
+					done: function(err, results) {
+						assert.isNull(err);
+						assert.lengthOf(results, 2);
+						assert.equal(results[0], value1);
+						assert.equal(results[1], value2);
+
+						done();
+					}
+				});
+			});
+
+			it('should handle a load function for missing values', function(done) {
+				var called = false,
+					cache = new Cache();
+
+				function loadIt(keys, cb) {
+					called = true;
+					cb(null, [value2, value1]);
+				}
+
+				cache[method]([key2, key1], loadIt, function(err, results) {
 					assert.isNull(err);
 					assert.lengthOf(results, 2);
-					assert.equal(results[0], value1);
-					assert.equal(results[1], value2);
+					assert.equal(results[0], value2);
+					assert.equal(results[1], value1);
+					assert.isTrue(called);
 
 					done();
+				});
+
+			});
+
+			it('should handle a load function and a ttl for missing values', function(done) {
+				var called = false,
+					cache = new Cache();
+
+				function loadIt(keys, cb) {
+					called = true;
+					cb(null, [value2, value1]);
 				}
-			});
-		});
 
-		it('should handle a load function for missing values', function(done) {
-			var called = false,
-				cache = new Cache();
+				cache[method]([key2, key1], loadIt, 1, function(err, results) {
+					assert.isNull(err);
+					assert.lengthOf(results, 2);
+					assert.equal(results[0], value2);
+					assert.equal(results[1], value1);
+					assert.isTrue(called);
 
-			function loadIt(keys, cb) {
-				called = true;
-				cb(null, [value2, value1]);
-			}
+					done();
+				});
 
-			cache.mget([key2, key1], loadIt, function(err, results) {
-				assert.isNull(err);
-				assert.lengthOf(results, 2);
-				assert.equal(results[0], value2);
-				assert.equal(results[1], value1);
-				assert.isTrue(called);
-
-				done();
 			});
 
-		});
+			it('should handle a load function and a string ttl for missing values', function(done) {
+				var called = false,
+					cache = new Cache();
 
-		it('should handle a load function and a ttl for missing values', function(done) {
-			var called = false,
-				cache = new Cache();
+				function loadIt(keys, cb) {
+					called = true;
+					cb(null, [value2, value1]);
+				}
 
-			function loadIt(keys, cb) {
-				called = true;
-				cb(null, [value2, value1]);
-			}
+				cache[method]([key2, key1], loadIt, '1s', function(err, results) {
+					assert.isNull(err);
+					assert.lengthOf(results, 2);
+					assert.equal(results[0], value2);
+					assert.equal(results[1], value1);
+					assert.isTrue(called);
 
-			cache.mget([key2, key1], loadIt, 1, function(err, results) {
-				assert.isNull(err);
-				assert.lengthOf(results, 2);
-				assert.equal(results[0], value2);
-				assert.equal(results[1], value1);
-				assert.isTrue(called);
+					done();
+				});
 
-				done();
+			});
+
+			it('should handle a load function and a ttl for missing values and not return them after expiration', function(done) {
+				var called = false,
+					cache = new Cache();
+
+				function loadIt(keys, cb) {
+					called = true;
+					cb(null, [value2, value1]);
+				}
+
+				cache[method]([key2, key1], loadIt, 1, function(err, results) {
+					assert.isNull(err);
+					assert.lengthOf(results, 2);
+					assert.equal(results[0], value2);
+					assert.equal(results[1], value1);
+					assert.isTrue(called);
+
+					setTimeout(function() {
+						cache[method]([key1, key2], function(err, results) {
+							assert.isNull(err);
+							assert.lengthOf(results, 2);
+							assert.isUndefined(results[0]);
+							assert.isUndefined(results[1]);
+
+							done();
+						});
+					}, 1025);
+
+				});
+
+			});
+
+			it('should handle a load function and a string ttl for missing values and not return them after expiration', function(done) {
+				var called = false,
+					cache = new Cache();
+
+				function loadIt(keys, cb) {
+					called = true;
+					cb(null, [value2, value1]);
+				}
+
+				cache[method]([key2, key1], loadIt, '1 sec', function(err, results) {
+					assert.isNull(err);
+					assert.lengthOf(results, 2);
+					assert.equal(results[0], value2);
+					assert.equal(results[1], value1);
+					assert.isTrue(called);
+
+					setTimeout(function() {
+						cache[method]([key1, key2], function(err, results) {
+							assert.isNull(err);
+							assert.lengthOf(results, 2);
+							assert.isUndefined(results[0]);
+							assert.isUndefined(results[1]);
+
+							done();
+						});
+					}, 1025);
+
+				});
+
 			});
 
 		});
+	}
 
-		it('should handle a load function and a string ttl for missing values', function(done) {
-			var called = false,
-				cache = new Cache();
+	describeMultiGetTests('mget()', 'mget');
+	describeMultiGetTests('get() called with an array', 'get');
 
-			function loadIt(keys, cb) {
-				called = true;
-				cb(null, [value2, value1]);
-			}
+	function describeMultiSetTest(description, method) {
+		describe(description, function() {
+			var key1 = 'beep',
+				key2 = 'boop',
+				value1 = 'bop',
+				value2 = 'burp';
 
-			cache.mget([key2, key1], loadIt, '1s', function(err, results) {
-				assert.isNull(err);
-				assert.lengthOf(results, 2);
-				assert.equal(results[0], value2);
-				assert.equal(results[1], value1);
-				assert.isTrue(called);
+			it('should set multiple values, and then allow them to be retreived', function(done) {
+				var cache = new Cache(),
+					hash = {};
 
-				done();
-			});
+				hash[key1] = value1;
+				hash[key2] = value2;
 
-		});
+				cache[method](hash, function(err, set) {
+					assert.isNull(err);
+					assert.isTrue(set);
 
-		it('should handle a load function and a ttl for missing values and not return them after expiration', function(done) {
-			var called = false,
-				cache = new Cache();
-
-			function loadIt(keys, cb) {
-				called = true;
-				cb(null, [value2, value1]);
-			}
-
-			cache.mget([key2, key1], loadIt, 1, function(err, results) {
-				assert.isNull(err);
-				assert.lengthOf(results, 2);
-				assert.equal(results[0], value2);
-				assert.equal(results[1], value1);
-				assert.isTrue(called);
-
-				setTimeout(function() {
 					cache.mget([key1, key2], function(err, results) {
 						assert.isNull(err);
 						assert.lengthOf(results, 2);
-						assert.isUndefined(results[0]);
-						assert.isUndefined(results[1]);
+						assert.equal(results[0], value1);
+						assert.equal(results[1], value2);
 
 						done();
 					});
-				}, 1025);
 
+				});
 			});
 
-		});
+			it('should set multiple values with a ttl, and then allow them to be retreived', function(done) {
+				var cache = new Cache(),
+					hash = {};
 
-		it('should handle a load function and a string ttl for missing values and not return them after expiration', function(done) {
-			var called = false,
-				cache = new Cache();
+				hash[key1] = value1;
+				hash[key2] = value2;
 
-			function loadIt(keys, cb) {
-				called = true;
-				cb(null, [value2, value1]);
-			}
+				cache[method](hash, 1, function(err, set) {
+					assert.isNull(err);
+					assert.isTrue(set);
 
-			cache.mget([key2, key1], loadIt, '1 sec', function(err, results) {
-				assert.isNull(err);
-				assert.lengthOf(results, 2);
-				assert.equal(results[0], value2);
-				assert.equal(results[1], value1);
-				assert.isTrue(called);
-
-				setTimeout(function() {
 					cache.mget([key1, key2], function(err, results) {
 						assert.isNull(err);
 						assert.lengthOf(results, 2);
-						assert.isUndefined(results[0]);
-						assert.isUndefined(results[1]);
+						assert.equal(results[0], value1);
+						assert.equal(results[1], value2);
 
 						done();
 					});
-				}, 1025);
 
-			});
-
-		});
-
-	});
-
-	describe('mset()', function() {
-		var key1 = 'beep',
-			key2 = 'boop',
-			value1 = 'bop',
-			value2 = 'burp';
-
-		it('should set multiple values, and then allow them to be retreived', function(done) {
-			var cache = new Cache(),
-				hash = {};
-
-			hash[key1] = value1;
-			hash[key2] = value2;
-
-			cache.mset(hash, function(err, set) {
-				assert.isNull(err);
-				assert.isTrue(set);
-
-				cache.mget([key1, key2], function(err, results) {
-					assert.isNull(err);
-					assert.lengthOf(results, 2);
-					assert.equal(results[0], value1);
-					assert.equal(results[1], value2);
-
-					done();
 				});
-
 			});
-		});
 
-		it('should set multiple values with a ttl, and then allow them to be retreived', function(done) {
-			var cache = new Cache(),
-				hash = {};
+			it('should set multiple values with a ttl, and then not allow them to be retreived after expiration', function(done) {
+				var cache = new Cache(),
+					hash = {};
 
-			hash[key1] = value1;
-			hash[key2] = value2;
+				hash[key1] = value1;
+				hash[key2] = value2;
 
-			cache.mset(hash, 1, function(err, set) {
-				assert.isNull(err);
-				assert.isTrue(set);
-
-				cache.mget([key1, key2], function(err, results) {
+				cache[method](hash, 1, function(err, set) {
 					assert.isNull(err);
-					assert.lengthOf(results, 2);
-					assert.equal(results[0], value1);
-					assert.equal(results[1], value2);
+					assert.isTrue(set);
 
-					done();
+					setTimeout(function() {
+						cache.mget([key1, key2], function(err, results) {
+							assert.isNull(err);
+							assert.lengthOf(results, 2);
+							assert.isUndefined(results[0]);
+							assert.isUndefined(results[1]);
+
+							done();
+						});
+					}, 1025);
+
 				});
-
 			});
-		});
 
-		it('should set multiple values with a ttl, and then not allow them to be retreived after expiration', function(done) {
-			var cache = new Cache(),
-				hash = {};
+			it('should set one tag for one key', function(done) {
+				var cache = new Cache(),
+					hash = {},
+					tags = {},
+					tag = 'awesome';
 
-			hash[key1] = value1;
-			hash[key2] = value2;
+				hash[key1] = value1;
+				hash[key2] = value2;
 
-			cache.mset(hash, 1, function(err, set) {
-				assert.isNull(err);
-				assert.isTrue(set);
+				tags[key1] = [tag];
 
-				setTimeout(function() {
-					cache.mget([key1, key2], function(err, results) {
+				cache[method](hash, tags, function(err, set) {
+					assert.isNull(err);
+					assert.isTrue(set);
+
+					cache.getKeys(tag, function(err, keys) {
 						assert.isNull(err);
-						assert.lengthOf(results, 2);
-						assert.isUndefined(results[0]);
-						assert.isUndefined(results[1]);
+						assert.deepEqual(keys, [key1]);
 
 						done();
 					});
-				}, 1025);
-
-			});
-		});
-
-		it('should set one tag for one key', function(done) {
-			var cache = new Cache(),
-				hash = {},
-				tags = {},
-				tag = 'awesome';
-
-			hash[key1] = value1;
-			hash[key2] = value2;
-
-			tags[key1] = [tag];
-
-			cache.mset(hash, tags, function(err, set) {
-				assert.isNull(err);
-				assert.isTrue(set);
-
-				cache.getKeys(tag, function(err, keys) {
-					assert.isNull(err);
-					assert.deepEqual(keys, [key1]);
-
-					done();
 				});
 			});
-		});
 
-		it('should set two tags for one key', function(done) {
-			var cache = new Cache(),
-				hash = {},
-				tags = {},
-				tag1 = 'awesome',
-				tag2 = 'rawesome';
+			it('should set two tags for one key', function(done) {
+				var cache = new Cache(),
+					hash = {},
+					tags = {},
+					tag1 = 'awesome',
+					tag2 = 'rawesome';
 
-			hash[key1] = value1;
-			hash[key2] = value2;
+				hash[key1] = value1;
+				hash[key2] = value2;
 
-			tags[key1] = [tag1, tag2];
+				tags[key1] = [tag1, tag2];
 
-			cache.mset(hash, tags, function(err, set) {
-				assert.isNull(err);
-				assert.isTrue(set);
-
-				cache.getKeys([tag1, tag2], function(err, keys) {
+				cache[method](hash, tags, function(err, set) {
 					assert.isNull(err);
-					assert.deepEqual(keys, [key1]);
+					assert.isTrue(set);
 
-					done();
+					cache.getKeys([tag1, tag2], function(err, keys) {
+						assert.isNull(err);
+						assert.deepEqual(keys, [key1]);
+
+						done();
+					});
 				});
 			});
-		});
 
-		it('should set two tags for one key and one tag for another', function(done) {
-			var cache = new Cache(),
-				hash = {},
-				tags = {},
-				tag1 = 'awesome',
-				tag2 = 'rawesome';
+			it('should set two tags for one key and one tag for another', function(done) {
+				var cache = new Cache(),
+					hash = {},
+					tags = {},
+					tag1 = 'awesome',
+					tag2 = 'rawesome';
 
-			hash[key1] = value1;
-			hash[key2] = value2;
+				hash[key1] = value1;
+				hash[key2] = value2;
 
-			tags[key1] = [tag1, tag2];
-			tags[key2] = [tag1];
+				tags[key1] = [tag1, tag2];
+				tags[key2] = [tag1];
 
-			cache.mset(hash, tags, function(err, set) {
-				assert.isNull(err);
-				assert.isTrue(set);
-
-				cache.getKeys([tag1, tag2], function(err, keys) {
+				cache[method](hash, tags, function(err, set) {
 					assert.isNull(err);
-					assert.deepEqual(keys, [key1, key2]);
+					assert.isTrue(set);
 
-					cache.getKeys([tag1], function(err, keys){
+					cache.getKeys([tag1, tag2], function(err, keys) {
 						assert.isNull(err);
 						assert.deepEqual(keys, [key1, key2]);
 
-						done();
+						cache.getKeys([tag1], function(err, keys){
+							assert.isNull(err);
+							assert.deepEqual(keys, [key1, key2]);
+
+							done();
+						});
 					});
 				});
 			});
-		});
 
-	});
+		});
+	}
+
+	describeMultiSetTest('mset()', 'mset');
+	describeMultiSetTest('set() called with an array', 'set');
 
 	describe('expire()', function() {
 
