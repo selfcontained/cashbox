@@ -16,7 +16,7 @@ npm install cashbox
 
 Cashbox provides a common caching api on top of pluggable backend stores.  **memory** and **redis** are currently the two supported stores, with **memory** being the default.  `Cashbox` fully supports custom stores as long as they implement the correct api (see [the memory store](https://github.com/selfcontained/cashbox/blob/master/lib/stores/memory.js) for an example of what to implement).
 
-Using cashbox is pretty simple:
+Using cashbox is as follows:
 
 ```javascript
 var Cashbox = require('cashbox');
@@ -158,7 +158,7 @@ function loadEm(missingKeys, done) {
 + **callback** is a function called once the values have been set.  It's passed an error first, and a boolean indicating if the set operation was successful.
 
 ```javascript
-// simple mset with a 60 second ttl
+// mset with a 60 second ttl
 cache.mset({ 'one':1, 'two':2 }, 60, function(err, wasSet) {
   console.log('my values are cached for 60 seconds');
 });
