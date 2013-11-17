@@ -763,7 +763,7 @@ describe('Cache', function() {
 				cache.expire('non-existent-key');
 
 				done();
-			})
+			});
 		});
 
 		it('should function syncronously when using the Memory store', function(done) {
@@ -782,6 +782,62 @@ describe('Cache', function() {
 
 					done();
 				});
+			});
+		});
+
+	});
+
+	describe('serialization', function() {
+		var object = {
+
+			foo: 'baz',
+
+			burp: 'adurp',
+
+			toJSON: function() {
+				return {
+					foo: 'bar'
+				};
+			}
+		};
+
+		it('should serialize by default', function(done) {
+			var cache = new Cache();
+
+			cache.set('foo', object, function(err, set) {
+				assert.isNull(err);
+				assert.isTrue(set);
+
+				cache.get('foo', function(err, v) {
+					assert.isNull(err);
+
+					assert.deepEqual(v, object.toJSON());
+					assert.notDeepEqual(v, object);
+
+					done();
+				});
+
+			});
+		});
+
+		it('should not serialize when disabled', function(done) {
+			var cache = new Cache({
+				serialize: false
+			});
+
+			cache.set('foo', object, function(err, set) {
+				assert.isNull(err);
+				assert.isTrue(set);
+
+				cache.get('foo', function(err, v) {
+					assert.isNull(err);
+
+					assert.deepEqual(v, object);
+					assert.notDeepEqual(v, object.toJSON());
+
+					done();
+				});
+
 			});
 		});
 

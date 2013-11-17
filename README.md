@@ -73,6 +73,7 @@ cache = new Cashbox({ store: MyCustomStore, foo: 'bar' });
 
 ```
 
++ **serialize** can be set for `memory` store.  Defaults to `true`
 + **host** can be set for `redis` store.  Defaults to `localhost`
 + **port** can be set for `redis` store.  Defaults to `6379`
 + **database** can be set for `redis` store.  Defaults is not set, which uses 0.
