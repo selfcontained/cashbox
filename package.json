@@ -45,11 +45,11 @@
   "testling": {
     "browsers": [
       "ie/9..latest",
-      "firefox/19..latest",
-      "chrome/25..latest",
+      "firefox/latest",
+      "chrome/latest",
       "safari/latest",
-      "iphone/6",
-      "ipad/6"
+      "iphone/latest",
+      "ipad/latest"
     ],
     "harness": "mocha-tdd",
     "files": [
