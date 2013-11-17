@@ -52,6 +52,9 @@
       "ipad/6"
     ],
     "harness": "mocha-tdd",
-    "files": "test/*.test.js"
+    "files": [
+      "test/cashbox.test.js",
+      "test/cashbox.tagging.test.js"
+    ]
   }
 }
