@@ -135,13 +135,3 @@ describe('Redis Cache', function() {
 	});
 
 });
-
-var idx = 0;
-function getKey() {
-	return ['testkey',++idx,Date.now()].join(':');
-}
-
-var tagIdx = 0;
-function getTag() {
-	return ['tagtag',++tagIdx,Date.now()].join(':');
-}
