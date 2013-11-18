@@ -4,19 +4,16 @@ var assert = require('chai').assert,
 	Cache = require('../index'),
 	Redis = require('../lib/stores/redis');
 
-var DEFAULT_TTL = 1,
-	DEFAULT_TTL_STRING = '1 sec',
-	DEFAULT_TIMEOUT = 2000;
-
-
+var TTL = 1,
+	TTL_STRING = '1 sec',
+	TIMEOUT = 2000;
 
 describe('Redis Cache', function() {
 	this.timeout(2250);
 
 	var cache = new Cache({
-			store: 'redis'
-		}),
-		value = 'adurp';
+		store: 'redis'
+	});
 
 	helpers.describeStore('redis', Redis);
 
@@ -26,49 +23,54 @@ describe('Redis Cache', function() {
 		function() { return cache; },
 		'mget()',
 		'mget',
-		DEFAULT_TTL,
-		DEFAULT_TTL_STRING,
-		DEFAULT_TIMEOUT
+		TTL,
+		TTL_STRING,
+		TIMEOUT
 	);
 
 	helpers.describeMultiGet(
 		function() { return cache; },
 		'get() called with an array',
 		'get',
-		DEFAULT_TTL,
-		DEFAULT_TTL_STRING,
-		DEFAULT_TIMEOUT
+		TTL,
+		TTL_STRING,
+		TIMEOUT
 	);
 
 	helpers.describeMultiSet(
 		function() { return cache; },
 		'mset()',
 		'mset',
-		DEFAULT_TTL,
-		DEFAULT_TTL_STRING,
-		DEFAULT_TIMEOUT
+		TTL,
+		TTL_STRING,
+		TIMEOUT
 	);
 
 	helpers.describeMultiSet(
 		function() { return cache; },
 		'set() called with an array',
 		'set',
-		DEFAULT_TTL,
-		DEFAULT_TTL_STRING,
-		DEFAULT_TIMEOUT
+		TTL,
+		TTL_STRING,
+		TIMEOUT
 	);
 
 	helpers.describeExpire(
-		function() { return new Cache(); },
-		DEFAULT_TTL,
-		DEFAULT_TTL_STRING,
-		DEFAULT_TIMEOUT
+		function() { return cache; },
+		TTL,
+		TTL_STRING,
+		TIMEOUT
 	);
+
+	helpers.describeTagging(function() {
+		return cache;
+	});
 
 	describe('selecting a db', function() {
 
 		it('should select the specified database', function(done) {
 			var key = helpers.getKey(),
+				value = 'foo',
 				cache = new Cache({
 					store: 'redis',
 					database: 1

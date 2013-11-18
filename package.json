@@ -54,8 +54,7 @@
     ],
     "harness": "mocha-tdd",
     "files": [
-      "test/cashbox.test.js",
-      "test/cashbox.tagging.test.js"
+      "test/cashbox.memory.test.js"
     ]
   }
 }

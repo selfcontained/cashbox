@@ -3,11 +3,11 @@ var assert = require('chai').assert,
 	Cache = require('../index'),
 	Memory = require('../lib/stores/memory');
 
-describe('Cache', function() {
+var TTL = 1,
+	TTL_STRING = '1 sec',
+	TIMEOUT = 1025;
 
-	var TTL = 1,
-		TTL_STRING = '1 sec',
-		TIMEOUT = 1025;
+describe('Memory Cache', function() {
 
 	helpers.describeStore('memory', Memory);
 
@@ -55,6 +55,10 @@ describe('Cache', function() {
 		TTL_STRING,
 		TIMEOUT
 	);
+
+	helpers.describeTagging(function() {
+		return new Cache();
+	});
 
 	describe('memory specific functionality', function() {
 
