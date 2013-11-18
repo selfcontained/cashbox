@@ -17,7 +17,7 @@ describe('Redis Cache', function() {
 
 	helpers.describeStore('redis', Redis);
 
-	helpers.describeSetAndGet(function() { return cache; }, 1, 2000);
+	helpers.describeSetAndGet(function() { return cache; }, TTL, TIMEOUT);
 
 	helpers.describeMultiGet(
 		function() { return cache; },

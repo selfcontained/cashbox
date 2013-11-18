@@ -7,7 +7,7 @@ var helpers = module.exports = {};
 
 helpers.describeStore = function(storeName, Store) {
 
-	describe(f('% store', storeName), function() {
+	describe(f('%s store', storeName), function() {
 		it('should allow a store Constructor', function() {
 			var cache = new Cache({
 				store: Store
