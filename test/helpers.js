@@ -109,25 +109,6 @@ helpers.describeSetAndGet = function(getCache, TTL, TIMEOUT) {
 			});
 		});
 
-		it('should accept an object', function(done) {
-			var cache = getCache(),
-				key = getKey();
-
-			cache.get({
-				key: key,
-				ttl: 1,
-				load: function(key, cb) {
-					cb(null, value);
-				},
-				done: function(err, v) {
-					assert.isNull(err);
-					assert.equal(v, value);
-
-					done();
-				}
-			});
-		});
-
 		describe('without a ttl', function() {
 
 			it('should set a value and get that value', function(done) {
@@ -282,50 +263,6 @@ helpers.describeMultiGet = function(getCache, description, method, TTL, TTL_STRI
 						done();
 					});
 				});
-			});
-		});
-
-		it('should accept an object', function(done) {
-			var cache = getCache(),
-				key1 = getKey(),
-				key2 = getKey();
-
-			cache[method]({
-				keys: [key1, key2],
-				ttl: 1,
-				load: function(keys, cb) {
-					cb(null, [value1, value2]);
-				},
-				done: function(err, results) {
-					assert.isNull(err);
-					assert.lengthOf(results, 2);
-					assert.equal(results[0], value1);
-					assert.equal(results[1], value2);
-
-					done();
-				}
-			});
-		});
-
-		it('should accept an object with a string ttl', function(done) {
-			var cache = getCache(),
-				key1 = getKey(),
-				key2 = getKey();
-
-			cache[method]({
-				keys: [key1, key2],
-				ttl: '1 second',
-				load: function(keys, cb) {
-					cb(null, [value1, value2]);
-				},
-				done: function(err, results) {
-					assert.isNull(err);
-					assert.lengthOf(results, 2);
-					assert.equal(results[0], value1);
-					assert.equal(results[1], value2);
-
-					done();
-				}
 			});
 		});
 
@@ -773,29 +710,6 @@ helpers.describeTagging = function(getCache) {
 					);
 				}
 			);
-		});
-
-		it('should have tagging capabilities on the load object for get()', function(done) {
-			var cache = getCache(),
-				key = getKey(),
-				tag = getTag();
-
-			cache.get({
-				key: key,
-				ttl: 1,
-				load: function(key, cb) {
-					cb(null, value, tag);
-				},
-				done: function(err, v) {
-					assert.isNull(err);
-					assert.equal(v, value);
-
-					cache.getKeys(tag, function(err, keys) {
-						assert.equal(keys[0], key);
-						done();
-					});
-				}
-			});
 		});
 
 		it('should set one tag for one key via mset()', function(done) {
