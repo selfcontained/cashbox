@@ -11,7 +11,7 @@ describe('Memory Cache', function() {
 
 	helpers.describeStore('memory', Memory);
 
-	helpers.describeSetAndGet(function() { return new Cache(); }, 1, 1025);
+	helpers.describeSetAndGet(function() { return new Cache(); }, TTL, TIMEOUT);
 
 	helpers.describeMultiGet(
 		function() { return new Cache(); },

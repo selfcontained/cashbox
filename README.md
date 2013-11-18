@@ -14,7 +14,7 @@ javascript cache library with configurable storage
 npm install cashbox
 ```
 
-Cashbox provides a common caching api on top of pluggable backend stores.  **memory** and **redis** are currently the two supported stores, with **memory** being the default.  `Cashbox` fully supports custom stores as long as they implement the correct api (see [the memory store](https://github.com/selfcontained/cashbox/blob/master/lib/stores/memory.js) for an example of what to implement).
+Cashbox provides a common caching api on top of pluggable backend stores.  **memory**, **redis** and **memcached** are the currently supported stores, with **memory** being the default.  `Cashbox` fully supports custom stores as long as they implement the correct api (see [the memory store](https://github.com/selfcontained/cashbox/blob/master/lib/stores/memory.js) for an example of what to implement).  Implementing tagging is optional (see [the memcached store](https://github.com/selfcontained/cashbox/blob/master/lib/stores/memcached.js) for an example of a store that doesn't support tags)
 
 Using cashbox is as follows:
 
@@ -58,11 +58,11 @@ cache.set('myKey', 'myValue', '1 hour', function(err, wasSet) {
 
 The `Cashbox` constructor accepts an optional config object
 
-+ **type** can be set to specify cache store type. `memory` is the default, `redis` is also supported
++ **type** can be set to specify cache store type. `memory` is the default, `redis` and `memcached` are also supported
 + **store** can be set to either an instance, or a constructor for a backend cache store.  The constructor will be passed the config object should it need any special configuration.
 
 ```javascript
-// a custom store instance, should implement the same api as the memory/redis store
+// a custom store instance, should implement the same api as the memory/redis/memcached store
 var myCustomStore = new MyCustomStore();
 
 // you can pass in the instance
@@ -74,10 +74,11 @@ cache = new Cashbox({ store: MyCustomStore, foo: 'bar' });
 ```
 
 + **serialize** can be set for `memory` store.  Defaults to `true`
++ **locations** can be set for `memcached` store.  Defaults to `localhost:11211`.  [More options explained on the memcached module's page](https://github.com/3rd-Eden/node-memcached#server-locations).
 + **host** can be set for `redis` store.  Defaults to `localhost`
 + **port** can be set for `redis` store.  Defaults to `6379`
 + **database** can be set for `redis` store.  Defaults is not set, which uses 0.
-+ **options** can be set for `redis` store.  These are connection options passed into the [`redis.createClient(host, port, options)`](https://github.com/mranney/node_redis#rediscreateclientport-host-options) call.
++ **options** can be set for `redis` or `memcached` stores.  These are connection options passed into the [`redis.createClient(host, port, options)`](https://github.com/mranney/node_redis#rediscreateclientport-host-options) call, or the [`new Memcached(locations, options)`](https://github.com/3rd-Eden/node-memcached#setting-up-the-client) constructor.
 
 ### .get(key, [load], [ttl], callback)
 
