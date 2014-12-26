@@ -1,6 +1,6 @@
 {
   "name": "cashbox",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "javascript cache library with configurable storage",
   "main": "index.js",
   "browser": "browser.js",
