@@ -33,7 +33,7 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
-    "deap": "~0.2.0",
+    "deap": "^1.0.0",
     "timestr": "~0.1.0",
     "redis": "~0.12.1",
     "memcached": "~0.2.6",
