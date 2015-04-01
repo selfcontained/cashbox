@@ -645,7 +645,7 @@ helpers.describeTagging = function(getCache) {
 							};
 						}),
 						function(err) {
-							assert.isNull(err);
+							assert.isUndefined(err);
 							done();
 						}
 					);
@@ -704,7 +704,7 @@ helpers.describeTagging = function(getCache) {
 							return map;
 						}, {}),
 						function(err, results) {
-							assert.isNull(err);
+							assert.isUndefined(err);
 							done();
 						}
 					);
